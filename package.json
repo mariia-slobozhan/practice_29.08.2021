@@ -3,10 +3,10 @@
   "version": "1.1.0",
   "description": "",
   "main": "index.js",
-  "homepage": "https://mariia-slobozhan.github.io/goit-js-hw-13-image-finder",
+  "homepage": "https://mariia-slobozhan.github.io/practice_29.08.2021",
   "scripts": {
     "dev": "parcel src/*.html",
-    "build": "parcel build src/*.html --public-url /goit-js-hw-13-image-finder/"
+    "build": "parcel build src/*.html --public-url /practice_29.08.2021/"
   },
   "repository": {
     "type": "git",

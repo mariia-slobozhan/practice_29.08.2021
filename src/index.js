@@ -1,8 +1,8 @@
 import './sass/main.scss';
 import apiService from './js/apiService';
-import '../node_modules/material-design-icons/iconfont/material-icons.css'
-import pictureMarkup from './templates/picture.hbs'
-import fullSizePictureOpen from './js/lightbox.js'
+import '../node_modules/material-design-icons/iconfont/material-icons.css';
+import pictureMarkup from './templates/picture.hbs';
+import fullSizePictureOpen from './js/lightbox.js';
 
 const refs = {
   form: document.querySelector('.search-form'),
@@ -15,59 +15,53 @@ const refs = {
 
 refs.form.addEventListener('submit', querySearch);
 refs.loadMorebtn.addEventListener('click', loadMore);
-refs.upBtn.addEventListener('click', onTop )
-window.addEventListener("scroll", scrollFunction)
-refs.loadMorebtn.classList.add("is-hidden")
-
+refs.upBtn.addEventListener('click', onTop);
+window.addEventListener('scroll', scrollFunction);
+refs.loadMorebtn.classList.add('is-hidden');
 
 function querySearch(e) {
   e.preventDefault();
-  
+
   apiService.searchQuery = e.currentTarget.elements.query.value;
-  apiService.resetPage()
- 
+  apiService.resetPage();
+
   apiService.fetchPictures().then(result => {
     clearMarkup();
-      createMarkup(result)})
-      refs.loadMorebtn.classList.remove("is-hidden")
+    createMarkup(result);
+  });
+  refs.loadMorebtn.classList.remove('is-hidden');
 }
 
 function loadMore(e) {
   apiService.fetchPictures().then(result => {
-      createMarkup(result)})
-
+    createMarkup(result);
+  });
 }
 
-function createMarkup(pictures){
-    const markUp = pictureMarkup(pictures);
-    refs.gallery.insertAdjacentHTML("beforeend", markUp)
-    refs.gallery.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-      });
-
-    //   refs.photoCard.addEventListener('click', fullSizePictureOpen)
+function createMarkup(pictures) {
+  const markUp = pictureMarkup(pictures);
+  refs.gallery.insertAdjacentHTML('beforeend', markUp);
+  refs.gallery.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end',
+  });
 }
 
 function clearMarkup() {
-    refs.gallery.innerHTML = ''
-
+  refs.gallery.innerHTML = '';
 }
 
-function onTop(e){
-    document.documentElement.scrollTo ({
-        top: 0,
-        behavior: 'smooth',
-      })
+function onTop(e) {
+  document.documentElement.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 }
-
 
 function scrollFunction() {
   if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-   refs.upBtn.style.display = "block";
+    refs.upBtn.style.display = 'block';
   } else {
-    refs.upBtn.style.display = "none";
+    refs.upBtn.style.display = 'none';
   }
 }
-
-refs.photoCard.addEventListener('click', fullSizePictureOpen)
