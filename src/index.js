@@ -1,67 +1,70 @@
 import './sass/main.scss';
-import apiService from './js/apiService';
+import fetchImg from './js/apiService';
+import { form, gallery, loadMorebtn, upBtn } from './js/refs';
 import '../node_modules/material-design-icons/iconfont/material-icons.css';
 import pictureMarkup from './templates/picture.hbs';
-import fullSizePictureOpen from './js/lightbox.js';
+import * as basicLightbox from 'basiclightbox';
 
-const refs = {
-  form: document.querySelector('.search-form'),
-  input: document.querySelector('input[name="query"]'),
-  gallery: document.querySelector('.gallery'),
-  loadMorebtn: document.querySelector('[data-action="load-more"]'),
-  upBtn: document.querySelector('.up-btn'),
-  photoCard: document.querySelector('.photo-card'),
+const state = {
+  page: 1,
+  query: '',
 };
 
-refs.form.addEventListener('submit', querySearch);
-refs.loadMorebtn.addEventListener('click', loadMore);
-refs.upBtn.addEventListener('click', onTop);
-window.addEventListener('scroll', scrollFunction);
-refs.loadMorebtn.classList.add('is-hidden');
+const options = {
+  root: null,
+  rootMargin: '0px', 
+  rhtrshold: 0.5,
+};
 
-function querySearch(e) {
+const observer = new IntersectionObserver(onClickLoadMore, options);
+
+loadMorebtn.style.visibility = 'hidden';
+
+form.addEventListener('submit', onSubmitForm);
+loadMorebtn.addEventListener('click', onClickLoadMore);
+gallery.addEventListener('click', openModal);
+
+async function onSubmitForm(e) {
   e.preventDefault();
-
-  apiService.searchQuery = e.currentTarget.elements.query.value;
-  apiService.resetPage();
-
-  apiService.fetchPictures().then(result => {
-    clearMarkup();
-    createMarkup(result);
-  });
-  refs.loadMorebtn.classList.remove('is-hidden');
+  state.page = 1;
+  if (!e.currentTarget.elements.query.value.trim()) {
+    return;
+  }
+  loadMorebtn.style.visibility = 'hidden';
+  state.query = e.currentTarget.elements.query.value.trim();
+  const data = await fetchImg(state.query, state.page);
+  gallery.innerHTML = pictureMarkup(data);
+  if (data.length > 11) {
+    loadMorebtn.style.visibility = 'visible';
+  }
 }
 
-function loadMore(e) {
-  apiService.fetchPictures().then(result => {
-    createMarkup(result);
-  });
-}
-
-function createMarkup(pictures) {
-  const markUp = pictureMarkup(pictures);
-  refs.gallery.insertAdjacentHTML('beforeend', markUp);
-  refs.gallery.scrollIntoView({
+async function onClickLoadMore() {
+  state.page += 1;
+  const data = await fetchImg(state.query, state.page);
+  gallery.insertAdjacentHTML('beforeend', pictureMarkup(data));
+  if (data.length < 12) {
+    loadMorebtn.style.visibility = 'hidden';
+  }
+  gallery.scrollIntoView({
     behavior: 'smooth',
     block: 'end',
   });
-}
 
-function clearMarkup() {
-  refs.gallery.innerHTML = '';
-}
-
-function onTop(e) {
-  document.documentElement.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  });
-}
-
-function scrollFunction() {
-  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-    refs.upBtn.style.display = 'block';
-  } else {
-    refs.upBtn.style.display = 'none';
+  if(state.page === 2){
+      observer.observe(loadMorebtn)
   }
+}
+
+function openModal(e) {
+  if (e.target.nodeName !== 'IMG') {
+    return;
+  }
+  basicLightbox
+    .create(
+      `
+    <img src="${e.target.dataset.src} width="800" height="600">
+`,
+    )
+    .show();
 }
